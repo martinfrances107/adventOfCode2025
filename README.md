@@ -1,4 +1,4 @@
-Advent Of Code 2025
+# Advent Of Code 2025
 Notes:
 
 Day 1 Dial Safe
