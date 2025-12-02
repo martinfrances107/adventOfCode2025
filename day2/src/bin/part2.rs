@@ -24,7 +24,7 @@ fn invalid_range(id: &str) -> HashSet<u64> {
         let mid = id_str.len() / 2;
         let fragment_lengths = 1..=mid;
 
-        'frag_search: for frag_len in fragment_lengths.clone() {
+        'frag_search: for frag_len in fragment_lengths {
             let whole_solutions = id_str.len() % frag_len == 0;
 
             if !whole_solutions {
