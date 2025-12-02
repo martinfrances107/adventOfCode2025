@@ -34,8 +34,8 @@ fn invalid_range(id: &str) -> HashSet<u64> {
 
             let fragment = &id_str[0..frag_len];
 
-            let matches = id_str.match_indices(fragment).collect::<Vec<_>>();
-            let num_matches = matches.len();
+            let num_matches = id_str.match_indices(fragment).count();
+
             if num_matches == target_repeats {
                 bad.insert(id);
             }
