@@ -3,3 +3,6 @@ Notes:
 
 Day 1 Dial Safe
   Tricky special case in part2.
+
+Day 2 Invalid Codes.
+  Could refactor with a better way of finding interger divisors.
