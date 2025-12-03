@@ -2,7 +2,7 @@
 members = [
   "./day1",
   "./day2",
-
+  "./day3",
 ]
 resolver = "2"
 
