@@ -9,3 +9,6 @@ Day 2 Invalid Codes
 
 Day 3 Battery safety limit override
   Straightforward. Part2 the sliding search window was good to figure out.
+
+Day 4 Forklift trucking
+  part2 lends itself a cool animation.

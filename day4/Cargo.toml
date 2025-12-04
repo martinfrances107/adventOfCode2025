@@ -8,6 +8,9 @@ edition = "2024"
 name = "part1"
 test = true
 
+[[bin]]
+name = "part2"
+test = true
 
 [dependencies]
 nom = { workspace = true }
