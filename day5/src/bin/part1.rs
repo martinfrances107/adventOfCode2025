@@ -1,4 +1,4 @@
-//! Wharehouse full of rolls.
+//! Kitchen
 #![deny(clippy::all)]
 #![warn(clippy::cargo)]
 #![warn(clippy::complexity)]

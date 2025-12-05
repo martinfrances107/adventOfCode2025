@@ -19,5 +19,5 @@ Day 5 Fresh Products
   The solution
   Where the ranges overlap .. one must be exoanded, the other must be deleted.
   TODO: 
-    Given my solution takes 30 seconds on release mode 
-    I should go back and look at the performance.
+    Given my solution takes 17 seconds on release mode 
+    I should go back and look at the sub-optimal performance.

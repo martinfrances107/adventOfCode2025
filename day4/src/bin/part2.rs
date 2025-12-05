@@ -140,7 +140,7 @@ fn part1(input: &str) -> u32 {
         total += num_free;
 
         // Display map.
-        display_grid(&grid);
+        // display_grid(&grid);
 
         grid = new;
     }

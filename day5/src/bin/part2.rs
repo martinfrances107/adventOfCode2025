@@ -1,4 +1,4 @@
-//! Wharehouse full of rolls.
+// Kitchen
 #![deny(clippy::all)]
 #![warn(clippy::cargo)]
 #![warn(clippy::complexity)]
@@ -23,7 +23,7 @@ impl Display for Range {
 }
 impl Range {
     // Inclusive
-    fn contains(&self, x: u64) -> bool {
+    const fn contains(&self, x: u64) -> bool {
         self.start <= x && x <= self.end
     }
 }
@@ -53,33 +53,16 @@ fn consume_input(input: &str) -> HashSet<Range> {
 // Returns true when a has been modified.
 fn enlarge(a: &mut Range, b: &Range) -> bool {
     if a.contains(b.start) {
-        // println!("enlarging I: a {a:?} b {b:?}");
-        let a_start = a.start;
-        let b_end = b.end;
-        // println!("I: a_start {a_start}");
         *a = Range {
-            start: a_start,
-            end: b_end,
+            start: a.start,
+            end: b.end,
         };
-        // println!("I: enlarge a now  {a:?}");
         true
     } else if a.contains(b.end) {
-        let Range {
-            start: _a_start,
-            end: a_end,
-        } = a.clone();
-
-        let Range {
-            start: b_start,
-            end: _b_end,
-        } = b.clone();
-        // println!("enlarging II: a {a:?} b {b:?}");
-
         *a = Range {
-            start: b_start,
-            end: a_end,
+            start: b.start,
+            end: a.end,
         };
-        // println!("II: enlarge a now  {a:?}");
         true
     } else {
         false
@@ -87,14 +70,12 @@ fn enlarge(a: &mut Range, b: &Range) -> bool {
 }
 
 // Is a contained with the other?
-fn is_subset(a: &Range, other: &Range) -> bool {
+const fn is_subset(a: &Range, other: &Range) -> bool {
     other.contains(a.start) && other.contains(a.end)
 }
 
 // Scan bag for change, returns a new bag and a is_modifiued boolean.
 fn process(bag: HashSet<Range>) -> (HashSet<Range>, bool) {
-    // println!("process entry");
-    // display_sorted_bag(&bag);
     let other = bag.clone();
     let product = bag.into_iter().cartesian_product(&other);
 
@@ -103,19 +84,15 @@ fn process(bag: HashSet<Range>) -> (HashSet<Range>, bool) {
     let mut modified = false;
     let mut bag_delete = HashSet::new();
     'cp_loop: for (i, (mut a, b)) in product.enumerate() {
-        // println!("product pair {a} {b}");
         if a == *b {
             // don't compare with self.
-            // println!("ignore self");
             continue 'cp_loop;
         }
         if bag_delete.contains(&a) {
-            // println!("{i}skipping item already marked for deletion {a}");
             continue 'cp_loop;
         }
         if is_subset(&a, b) {
-            // mark for deletion ( or )
-            // println!("{i} - Mark for deletion {a}");
+            // mark for deletion.
             bag_delete.insert(a);
             continue 'cp_loop;
         }
@@ -134,16 +111,7 @@ fn process(bag: HashSet<Range>) -> (HashSet<Range>, bool) {
         // if not been marked for deletion, it may or may not have been modified
         // ppss to the next round.
         next.insert(a);
-        // println!("{i} passing to next {a}");
-
-        // println!("{i} process one row bag is now...");
-        // display_sorted_bag(&next);
     }
-
-    // Move to the next iteration
-    // println!("-----------------------------------------");
-    // println!("processed resultant bag ");
-    // display_sorted_bag(&next);
 
     (next, modified)
 }
@@ -152,7 +120,7 @@ fn part1(input: &str) -> u64 {
     let mut bag = consume_input(input);
     let max_turns = 1000_000;
     let mut turn = 1;
-    // println!("starting loop");
+
     'modified_loop: loop {
         let (next_bag, is_modified) = process(bag);
         bag = next_bag;
@@ -164,8 +132,6 @@ fn part1(input: &str) -> u64 {
         }
         turn += 1;
     }
-
-    // display_sorted_bag(&bag);
 
     let mut count = 0;
     for item in bag {
