@@ -12,3 +12,12 @@ Day 3 Battery safety limit override
 
 Day 4 Forklift trucking
   part2 lends itself a cool animation.
+
+Day 5 Fresh Products
+  Part 2 is this years entry which cannot be brute forced.
+  
+  The solution
+  Where the ranges overlap .. one must be exoanded, the other must be deleted.
+  TODO: 
+    Given my solution takes 30 seconds on release mode 
+    I should go back and look at the performance.
