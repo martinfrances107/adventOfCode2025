@@ -66,16 +66,13 @@ fn part1(input: &str) -> u64 {
     let num_cols = &numbers[0].len();
     let num_operators = ops.len();
     debug_assert_eq!(*num_cols, num_operators);
-    let mut results = vec![];
-    for col_idx in 0usize..*num_cols {
-        let result = match ops[col_idx] {
-            Op::Add => numbers.iter().map(|row| row[col_idx]).sum(),
-            Op::Mul => numbers.iter().map(|row| row[col_idx]).product(),
-        };
-        results.push(result);
-    }
 
-    results.iter().sum()
+    (0usize..*num_cols)
+        .map(|col_idx| match ops[col_idx] {
+            Op::Add => numbers.iter().map(|row| row[col_idx]).sum::<u64>(),
+            Op::Mul => numbers.iter().map(|row| row[col_idx]).product(),
+        })
+        .sum()
 }
 
 #[cfg(test)]
