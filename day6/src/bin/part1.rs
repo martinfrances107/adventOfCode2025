@@ -40,17 +40,10 @@ enum Op {
 }
 
 fn parse_op(input: &str) -> IResult<&str, Op> {
-    map_res(alt((char('+'), char('*'))), |c| {
-        match c {
-            '+' => Ok(Op::Add),
-            '*' => Ok(Op::Mul),
-            _ => {
-                // a
-
-                Err(Error::new("Failed to parse operator", ErrorKind::Alt))
-                // Err(bool)
-            }
-        }
+    map_res(alt((char('+'), char('*'))), |c| match c {
+        '+' => Ok(Op::Add),
+        '*' => Ok(Op::Mul),
+        _ => Err(Error::new("Failed to parse operator", ErrorKind::Alt)),
     })(input)
 }
 
