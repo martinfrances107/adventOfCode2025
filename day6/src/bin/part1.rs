@@ -11,26 +11,22 @@ use nom::{
     IResult,
     branch::alt,
     character::complete::{char, digit1, newline, space0, space1},
-    combinator::{map_res, recognize},
+    combinator::map_res,
     error::{Error, ErrorKind},
     multi::{many1, separated_list1},
     sequence::{delimited, tuple},
 };
 
 fn parse_number(input: &str) -> IResult<&str, u64> {
-    map_res(recognize(digit1), |s: &str| s.parse::<u64>())(input)
-}
-
-fn parse_list_of_numbers(input: &str) -> IResult<&str, Vec<u64>> {
-    separated_list1(space1, parse_number)(input)
-}
-// Parse a line of natural numbers separated by one or more spaces, terminated by a newline
-fn parse_line_of_numbers(input: &str) -> IResult<&str, Vec<u64>> {
-    delimited(space0, parse_list_of_numbers, newline)(input)
+    map_res(digit1, |s: &str| s.parse::<u64>())(input)
 }
 
 fn parse_block_of_numbers(input: &str) -> IResult<&str, Vec<Vec<u64>>> {
-    many1(parse_line_of_numbers)(input)
+    many1(delimited(
+        space0,
+        separated_list1(space1, parse_number),
+        newline,
+    ))(input)
 }
 
 #[derive(Debug, PartialEq)]
