@@ -69,20 +69,8 @@ fn part1(input: &str) -> u64 {
     let mut results = vec![];
     for col_idx in 0usize..*num_cols {
         let result = match ops[col_idx] {
-            Op::Add => {
-                let mut sum = 0;
-                for row in &numbers {
-                    sum += row[col_idx];
-                }
-                sum
-            }
-            Op::Mul => {
-                let mut total = numbers[0][col_idx];
-                for row in numbers.iter().skip(1) {
-                    total *= row[col_idx];
-                }
-                total
-            }
+            Op::Add => numbers.iter().map(|row| row[col_idx]).sum(),
+            Op::Mul => numbers.iter().map(|row| row[col_idx]).product(),
         };
         results.push(result);
     }
