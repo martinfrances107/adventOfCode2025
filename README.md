@@ -21,3 +21,5 @@ Day 5 Fresh Products
   TODO: 
     Given my solution takes 17 seconds on release mode 
     I should go back and look at the sub-optimal performance.
+
+Day 6 Multiple Divide
