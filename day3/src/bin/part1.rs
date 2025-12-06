@@ -1,3 +1,4 @@
+//! Operators
 #![deny(clippy::all)]
 #![warn(clippy::cargo)]
 #![warn(clippy::complexity)]
