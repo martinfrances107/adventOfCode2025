@@ -76,17 +76,6 @@ mod test {
     use super::*;
 
     #[test]
-    // line of numbers
-    fn lon() {
-        let input = "123 328  51 64
-";
-        assert_eq!(
-            parse_line_of_numbers(input),
-            Ok(("", vec![123, 328, 51, 64]))
-        );
-    }
-
-    #[test]
     // Block of numbers
     fn bon() {
         let input = "123 328  51 64
