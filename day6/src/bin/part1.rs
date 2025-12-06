@@ -14,24 +14,22 @@ use nom::{
     combinator::{map_res, recognize},
     error::{Error, ErrorKind},
     multi::{many1, separated_list1},
-    sequence::{delimited, terminated, tuple},
+    sequence::{delimited, tuple},
 };
 
-use std::ops::{Index, IndexMut};
-
-fn parse_number(input: &str) -> IResult<&str, u32> {
-    map_res(recognize(digit1), |s: &str| s.parse::<u32>())(input)
+fn parse_number(input: &str) -> IResult<&str, u64> {
+    map_res(recognize(digit1), |s: &str| s.parse::<u64>())(input)
 }
 
-fn parse_list_of_numbers(input: &str) -> IResult<&str, Vec<u32>> {
+fn parse_list_of_numbers(input: &str) -> IResult<&str, Vec<u64>> {
     separated_list1(space1, parse_number)(input)
 }
 // Parse a line of natural numbers separated by one or more spaces, terminated by a newline
-fn parse_line_of_numbers(input: &str) -> IResult<&str, Vec<u32>> {
+fn parse_line_of_numbers(input: &str) -> IResult<&str, Vec<u64>> {
     delimited(space0, parse_list_of_numbers, newline)(input)
 }
 
-fn parse_block_of_numbers(input: &str) -> IResult<&str, Vec<Vec<u32>>> {
+fn parse_block_of_numbers(input: &str) -> IResult<&str, Vec<Vec<u64>>> {
     many1(parse_line_of_numbers)(input)
 }
 
@@ -60,7 +58,7 @@ fn parse_list_of_operators(input: &str) -> IResult<&str, Vec<Op>> {
     separated_list1(space1, parse_op)(input)
 }
 
-fn consume_input(input: &str) -> IResult<&str, (Vec<Vec<u32>>, Vec<Op>)> {
+fn consume_input(input: &str) -> IResult<&str, (Vec<Vec<u64>>, Vec<Op>)> {
     tuple((parse_block_of_numbers, parse_list_of_operators))(input)
 }
 
@@ -69,7 +67,7 @@ fn main() {
     println!("{:?}", part1(input));
 }
 
-fn part1(input: &str) -> u32 {
+fn part1(input: &str) -> u64 {
     let (_remain, (numbers, ops)) = consume_input(input).expect("Failed to parse input");
 
     let num_cols = &numbers[0].len();
@@ -95,7 +93,7 @@ fn part1(input: &str) -> u32 {
         };
         results.push(result);
     }
-    dbg!(&results);
+
     results.iter().sum()
 }
 
