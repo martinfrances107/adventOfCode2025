@@ -23,7 +23,7 @@ Day 5 Fresh Products
     I should go back and look at the sub-optimal performance.
 
 Day 6 Multiple Divide
-  Part one: Nice algorithm using .retain() on a hashSet and building up a list of beams to add 
-  as the rows progress.
 
 Day 7 Beam Splitter
+  Part one: Nice algorithm using .retain() on a hashSet and building up a list of beams to add 
+  as the rows progress.
