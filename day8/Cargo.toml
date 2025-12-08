@@ -1,0 +1,14 @@
+[package]
+name = "day8"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "part1"
+test = true
+
+
+
+[dependencies]
+itertools.workspace = true
+nom = { workspace = true }
