@@ -79,10 +79,10 @@ fn part2(input: &str) -> i64 {
         beams.extend(new_beams);
 
         prev_beam_counter = beam_counter;
-        for item in &prev_beam_counter {
-            print!("{item} ");
-        }
-        println!();
+        // for item in &prev_beam_counter {
+        //     print!("{item} ");
+        // }
+        // println!();
     }
 
     // for item in &prev_beam_counter {
