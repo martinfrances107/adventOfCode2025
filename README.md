@@ -27,3 +27,13 @@ Day 6 Multiple Divide
 Day 7 Beam Splitter
   Part one: Nice algorithm using .retain() on a hashSet and building up a list of beams to add 
   as the rows progress.
+
+Day 8 Extension Coord
+  First time using a linkedList.
+  Part 2 Would not complete until I sort out a major perf optimisation 
+    now using a call to .tuple_combinations() combined with a sort to 
+    effertless pass a list of nearest neighbours.
+    
+  TODO  
+  Want to go back and refactor using petgraph
+  Visualization -- generate a stl file for all connected points.

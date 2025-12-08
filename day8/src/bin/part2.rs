@@ -1,4 +1,4 @@
-//! Beam Splitter
+//! Extension Coord
 #![deny(clippy::all)]
 #![warn(clippy::cargo)]
 #![warn(clippy::complexity)]
@@ -9,9 +9,11 @@
 
 use std::collections::{HashSet, LinkedList};
 
+use itertools::Itertools;
+
 fn main() {
     let input = include_str!("./input1.txt");
-    println!("{:?}", part1(input, 1000));
+    println!("{:?}", part2(input, 1000000));
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -28,7 +30,7 @@ impl Box {
     }
 }
 
-fn part1(input: &str, num_connections: usize) -> usize {
+fn part2(input: &str, loop_count_max: usize) -> i64 {
     let mut boxes: HashSet<Box> = HashSet::default();
     let mut circuits: LinkedList<Vec<Box>> = LinkedList::default();
     for line in input.lines() {
@@ -40,41 +42,25 @@ fn part1(input: &str, num_connections: usize) -> usize {
         boxes.insert(Box { x, y, z });
     }
 
-    let mut loop_count = 0;
-    let mut connection_count = 0;
-    let mut prev_min2 = 0;
-    'connection_loop: loop {
-        let mut pair_candidate: Option<(Box, Box)> = None;
-        let mut dist2_min = i64::MAX;
-        for a in &boxes {
-            for b in &boxes {
-                let d2 = a.len2(b);
-                if *a != *b && d2 > prev_min2 && d2 < dist2_min {
-                    dist2_min = d2;
-                    pair_candidate = Some((a.clone(), b.clone()));
-                }
-            }
-        }
+    let mut last_pair = None;
 
-        let Some((a, b)) = pair_candidate else {
-            println!("no more pairs to be found");
-            break 'connection_loop;
-        };
-
-        // Now have a pairing (a, b)
-        prev_min2 = dist2_min;
-
-        // println!("found next pair {:?} {:?}", a, b);
-
+    // closet first
+    for (loop_count, (a, b, _dist_)) in boxes
+        .iter()
+        .tuple_combinations()
+        .map(|(a, b)| (a, b, a.len2(b)))
+        .sorted_by(|x, y| x.2.partial_cmp(&y.2).unwrap())
+        .enumerate()
+    {
         // look for a in existing circuits.
         // look for b in existing circuits.
         let mut a_in_circuit = None;
         let mut b_in_circuit = None;
         for (circuit_id, circuit) in circuits.iter().enumerate() {
-            if circuit.contains(&a) {
+            if circuit.contains(a) {
                 a_in_circuit = Some(circuit_id);
             }
-            if circuit.contains(&b) {
+            if circuit.contains(b) {
                 b_in_circuit = Some(circuit_id);
             }
         }
@@ -89,8 +75,7 @@ fn part1(input: &str, num_connections: usize) -> usize {
             (None, None) => {
                 // println!("Making a new circuit from two unconnected");
 
-                circuits.push_back(vec![a, b]);
-                connection_count += 1;
+                circuits.push_back(vec![a.clone(), b.clone()]);
             }
             (None, Some(cir_b)) => {
                 // println!("Adding a to b's exiting circuit");
@@ -108,7 +93,8 @@ fn part1(input: &str, num_connections: usize) -> usize {
                     })
                     // Panic The require circuit was not found
                     .unwrap();
-                connection_count += 1;
+                last_pair = Some((a.clone(), b.clone()));
+                // connection_count += 1;
             }
             (Some(cir_a), None) => {
                 // println!("Adding b to a's exiting circuit");
@@ -126,21 +112,20 @@ fn part1(input: &str, num_connections: usize) -> usize {
                     })
                     // Panic The require circuit was not found
                     .unwrap();
-                connection_count += 1;
+                last_pair = Some((a.clone(), b.clone()));
             }
             (Some(cir_a), Some(cir_b)) => {
                 // TODO rethink this looking for elements in circuits is expensive, I am doing this a total of 4 times!!
                 if cir_a == cir_b {
                     // println!("Doing nothing");
-                    connection_count += 1;
                 } else {
                     // println!("Merging circuits");
-                    let mut frag_a_iter = circuits.extract_if(|c| c.contains(&a));
+                    let mut frag_a_iter = circuits.extract_if(|c| c.contains(a));
                     let mut frag_a = frag_a_iter.next().unwrap();
                     debug_assert_eq!(frag_a_iter.next(), None);
 
                     // Extract circuit containing b
-                    let mut frag_b_iter = circuits.extract_if(|c| c.contains(&b));
+                    let mut frag_b_iter = circuits.extract_if(|c| c.contains(b));
                     let mut frag_b = frag_b_iter.next().unwrap();
                     debug_assert_eq!(frag_b_iter.next(), None);
 
@@ -148,48 +133,23 @@ fn part1(input: &str, num_connections: usize) -> usize {
 
                     circuits.push_back(frag_a);
                     // Joining two circuits, is still a new connection.
-                    connection_count += 1;
+                    last_pair = Some((a.clone(), b.clone()));
                 }
             }
         }
 
-        // print!("circuits ");
-        // for c in &circuits {
-        //     print!("{} ", c.len());
-        // }
-        // println!();
-        // println!("at end of loop num connections {connection_count}");
-        // println!();
-        if connection_count == num_connections {
-            break 'connection_loop;
-        }
-
-        if loop_count == num_connections {
+        if loop_count == loop_count_max {
+            println!("{loop_count}");
             panic!("too much counting");
         }
-        loop_count += 1;
     }
 
-    // println!("Final circuits {circuits:#?}");
+    let Some((a, b)) = last_pair else {
+        panic!("did not find a pair");
+    };
+    println!("last {a:#?}, {b:#?}");
 
-    let total_nodes = boxes.len();
-    let mut connected_nodes = 0;
-    let mut circuit_lengths = vec![];
-    for cir in &circuits {
-        connected_nodes += cir.len();
-        circuit_lengths.push(cir.len());
-    }
-    let isolated_boxes = total_nodes - connected_nodes;
-
-    circuit_lengths.sort();
-    circuit_lengths.reverse();
-
-    let top_product: usize = circuit_lengths.iter().take(3).product();
-    // println!("top_sum {top_product}");
-    // println!("circuit lengths {circuit_lengths:#?}");
-    // println!("isolated boxes {connected_nodes}");
-    // println!("num circuit {isolated_boxes}");
-    top_product
+    a.x * b.x
 }
 
 #[cfg(test)]
@@ -198,7 +158,7 @@ mod test {
 
     #[test]
     // Block of numbers
-    fn connect() {
+    fn connect2() {
         let input = "162,817,812
 57,618,57
 906,360,560
@@ -221,6 +181,6 @@ mod test {
 425,690,689
 ";
 
-        assert_eq!(part1(input, 10), 40);
+        assert_eq!(part2(input, 10_000), 25272);
     }
 }
