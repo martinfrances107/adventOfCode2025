@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::lamps::{Lamp, Lamps, parse_indictor_pannel, parse_lamps};
+use crate::lamps::{Lamp, Lamps, parse_indictor_pannel};
 use nom::{
     IResult,
     bytes::complete::tag,
@@ -10,6 +10,7 @@ use nom::{
     sequence::{delimited, tuple},
 };
 
+#[derive(Debug)]
 pub struct StateMachine {
     pub ready_state: Lamps,
     pub state: Lamps,
@@ -19,6 +20,7 @@ pub struct StateMachine {
 impl StateMachine {
     // Press button specified by index.
     fn press(&mut self, button_idx: usize) {
+        // println!("pressing button {button_idx} {:?}", self.buttons);
         // toggle the lamps
         for lamp_idx in &self.buttons[button_idx] {
             self.state.0[*lamp_idx].toggle();
@@ -43,7 +45,7 @@ impl StateMachine {
     }
 
     pub fn number_of_buttons(&self) -> usize {
-        self.ready_state.0.len()
+        self.buttons.len()
     }
 }
 
@@ -123,7 +125,7 @@ mod test {
         };
     }
     #[test]
-    fn test_push_count() {
+    fn test_push_count_machine_one() {
         let input = "[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}";
         if let Ok((_, mut sm)) = parse_line(input) {
             assert!(!sm.is_ready());
@@ -138,11 +140,29 @@ mod test {
             // push all but (1,3) once
             sm.press_buttons(&vec![0, 2, 3, 4, 5]);
             assert!(sm.is_ready());
+            sm.reset();
+
+            // shortest sequence
+            sm.press_buttons(&vec![4, 5]);
+            assert!(sm.is_ready());
         } else {
             panic!("failed to parse line");
         };
     }
 
+    #[test]
+    fn test_push_count_machine_two() {
+        let input = "[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}";
+        if let Ok((_, mut sm)) = parse_line(input) {
+            assert!(!sm.is_ready());
+
+            sm.press_buttons(&vec![2, 3, 4]);
+            assert!(sm.is_ready());
+            sm.reset();
+        } else {
+            panic!("failed to parse line");
+        };
+    }
     #[test]
     fn test_wiring() {
         let cases: Vec<(&str, Vec<Vec<usize>>)> = vec![(
