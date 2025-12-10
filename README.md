@@ -37,3 +37,6 @@ Day 8 Extension Coord
   TODO  
   Want to go back and refactor using petgraph
   Visualization -- generate a stl file for all connected points.
+
+Day 9 Red Square
+  Part1: trivial - cartesian product.
