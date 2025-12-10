@@ -40,3 +40,12 @@ Day 8 Extension Coord
 
 Day 9 Red Square
   Part1: trivial - cartesian product.
+  Part2: I need to algorithm that tollerates rays that are parallel 
+  and counts the winding number correctlty.
+  
+Day 10 Button Smasher
+
+  Part1: Fun example, at 3 sec run this needs some per improvements lots 
+    of Vec/Stack objects which could be made into arrays with some const generics.
+    or I could toggle on a bitvec.
+  Part2 test pass but working on input fails .. this suggest I missed a trick and do not have the fast algorithm.
