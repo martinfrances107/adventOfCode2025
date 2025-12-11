@@ -49,3 +49,9 @@ Day 10 Button Smasher
     of Vec/Stack objects which could be made into arrays with some const generics.
     or I could toggle on a bitvec.
   Part2 test pass but working on input fails .. this suggest I missed a trick and do not have the fast algorithm.
+
+Day 11 Loopy
+  Lovely little puzzle
+  part 1 runs fast ... I see I am copying over Vec's of string from one generation to the next 
+    maybe I could refactor to manipulate in place. I would be deleting fragments from the middle of the 
+    list of fragments. so a linked list?

@@ -1,0 +1,18 @@
+[package]
+name = "day11"
+version = "0.1.0"
+edition = {workspace = true}
+readme = {workspace = true}
+repository = {workspace = true}
+keywords = {workspace=true}
+description= {workspace=true}
+categories = {workspace=true}
+license = {workspace = true}
+
+[[bin]]
+name = "part1"
+test = true
+
+[dependencies]
+itertools.workspace = true
+nom = { workspace = true }
