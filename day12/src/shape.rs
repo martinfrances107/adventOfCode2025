@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use nom::{
     IResult,
     character::complete::char,
@@ -11,9 +13,24 @@ use crate::block::Block;
 #[derive(Debug, Eq, PartialEq)]
 pub struct Shape {
     pub id: usize,
-    pub row: [[Block; 3]; 3],
+    pub rows: [[Block; 3]; 3],
 }
 
+impl Display for Shape {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let brick_char = self.id.to_string().chars().next().unwrap();
+        for row in &self.rows {
+            for block in row {
+                match block {
+                    Block::Blank => write!(f, ".")?,
+                    Block::Brick => write!(f, "{brick_char}")?,
+                }
+            }
+            writeln!(f)?
+        }
+        Ok(())
+    }
+}
 impl Shape {
     fn parse_id(input: &str) -> IResult<&str, usize> {
         terminated(super::parse_usize, tuple((char(':'), line_ending)))(input)
@@ -39,7 +56,7 @@ impl Shape {
 
     pub fn parse(input: &str) -> IResult<&str, Self> {
         map(tuple((Self::parse_id, Self::parse_blocks)), |(id, row)| {
-            Self { id, row }
+            Self { id, rows: row }
         })(input)
     }
 }
@@ -91,13 +108,31 @@ mod test {
                 "",
                 Shape {
                     id: 0usize,
-                    row: [
+                    rows: [
                         [Brick, Brick, Brick],
                         [Brick, Brick, Blank],
                         [Brick, Brick, Blank],
                     ],
                 }
             ))
+        );
+    }
+
+    #[test]
+    fn display_shape() {
+        let input = "1:
+###
+##.
+##.
+";
+        let (_, s) = Shape::parse(input).unwrap();
+
+        assert_eq!(
+            s.to_string(),
+            "111
+11.
+11.
+"
         );
     }
 }

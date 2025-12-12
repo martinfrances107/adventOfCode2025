@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use nom::{
     IResult,
     branch::alt,
@@ -12,6 +14,14 @@ pub enum Block {
     Blank,
 }
 
+// impl Display for Block {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         match self {
+//             Block::Brick => write!(f, "#"),
+//             Block::Blank => write!(f, "."),
+//         }
+//     }
+// }
 impl Block {
     pub fn parse(input: &str) -> IResult<&str, Self> {
         // todo
