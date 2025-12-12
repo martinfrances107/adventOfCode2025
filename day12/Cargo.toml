@@ -13,7 +13,6 @@ license = {workspace = true}
 name = "part1"
 test = true
 
-
 [dependencies]
 itertools.workspace = true
 nom = { workspace = true }

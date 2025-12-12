@@ -51,7 +51,7 @@ fn consume_input(input: &str) -> HashSet<Range> {
 }
 
 // Returns true when a has been modified.
-fn enlarge(a: &mut Range, b: &Range) -> bool {
+const fn enlarge(a: &mut Range, b: &Range) -> bool {
     if a.contains(b.start) {
         *a = Range {
             start: a.start,
@@ -118,7 +118,7 @@ fn process(bag: HashSet<Range>) -> (HashSet<Range>, bool) {
 
 fn part1(input: &str) -> u64 {
     let mut bag = consume_input(input);
-    let max_turns = 1000_000;
+    let max_turns = 1_000_000;
     let mut turn = 1;
 
     'modified_loop: loop {

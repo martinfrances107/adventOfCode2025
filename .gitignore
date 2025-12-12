@@ -1,0 +1,5 @@
+**/perf.data
+**/perf.data.old
+**/flamegraph.svg
+tarpaulin-report.html
+Cargo.lock

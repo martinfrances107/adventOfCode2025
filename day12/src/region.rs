@@ -1,29 +1,33 @@
+use std::fmt::Display;
+
 use nom::{
-    IResult,
+    IResult, Parser,
     bytes::complete::tag,
     character::complete::{char, digit1, line_ending},
     combinator::{map, map_res},
     error::{Error, ErrorKind},
-    multi::many1,
-    sequence::{terminated, tuple},
+    multi::{many1, separated_list1},
+    sequence::terminated,
 };
 
-use crate::{parse_u8, parse_usize};
+use crate::parse_u8;
 
-pub struct ListItem {
-    quantity: u8,
-    id: usize,
-}
+#[derive(Debug, Eq, PartialEq)]
 pub struct Region {
-    width: u8,
-    length: u8,
-    list: Vec<ListItem>,
+    pub width: u8,
+    pub length: u8,
+    pub list: Vec<u8>,
 }
 
+impl Display for Region {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "Region {}x{} - {:?}", self.width, self.length, self.list)
+    }
+}
 impl Region {
-    fn parse_region(input: &str) -> IResult<&str, (u8, u8)> {
+    fn parse_header(input: &str) -> IResult<&str, (u8, u8)> {
         map_res(
-            tuple((digit1, char('x'), digit1)),
+            (digit1, char('x'), digit1),
             |(a_str, _, b_str): (&str, char, &str)| {
                 // a
                 if let Ok(a) = a_str.parse::<u8>() {
@@ -36,19 +40,18 @@ impl Region {
                     Err(Error::new("Fail to parse width ", ErrorKind::Alt))
                 }
             },
-        )(input)
+        )
+        .parse(input)
     }
 
-    fn parse_list_item(input: &str) -> IResult<&str, ListItem> {
-        map(
-            tuple((parse_u8, char(' '), parse_usize)),
-            |(quantity, _, id): (u8, char, usize)| ListItem { quantity, id },
-        )(input)
-    }
     pub fn parse(input: &str) -> IResult<&str, Self> {
         map(
             terminated(
-                tuple((Self::parse_region, tag(": "), many1(Self::parse_list_item))),
+                (
+                    Self::parse_header,
+                    tag(": "),
+                    separated_list1(char(' '), parse_u8),
+                ),
                 line_ending,
             ),
             |((width, length), _, list)| Self {
@@ -56,6 +59,67 @@ impl Region {
                 length,
                 list,
             },
-        )(input)
+        )
+        .parse(input)
+    }
+
+    pub fn many1(input: &str) -> IResult<&str, Vec<Self>> {
+        many1(Self::parse).parse(input)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_region() {
+        let input = "1x2";
+
+        let out = Region::parse_header(input);
+        assert_eq!(out, Ok(("", (1u8, 2u8))));
+    }
+
+    #[test]
+    fn single() {
+        let input = "12x5: 1 0 1 0 2 2
+";
+        assert_eq!(
+            Region::parse(input),
+            Ok((
+                "",
+                Region {
+                    width: 12,
+                    length: 5,
+                    list: vec![1, 0, 1, 0, 2, 2]
+                }
+            ))
+        );
+    }
+
+    #[test]
+    fn two() {
+        let input = "4x4: 0 0 0 0 2 0
+12x5: 1 0 1 0 2 2
+";
+
+        assert_eq!(
+            Region::many1(input),
+            Ok((
+                "",
+                vec![
+                    Region {
+                        width: 4,
+                        length: 4,
+                        list: vec![0, 0, 0, 0, 2, 0]
+                    },
+                    Region {
+                        width: 12,
+                        length: 5,
+                        list: vec![1, 0, 1, 0, 2, 2]
+                    }
+                ]
+            ))
+        );
     }
 }

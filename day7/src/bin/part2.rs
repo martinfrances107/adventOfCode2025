@@ -43,7 +43,7 @@ fn part2(input: &str) -> i64 {
     let mut prev_beam_counter = (0..=max_beam_position).map(|_| 0_i64).collect::<Vec<_>>();
     prev_beam_counter[s_pos] = 1;
 
-    for row in splitter_positions.iter() {
+    for row in &splitter_positions {
         let mut new_beams: Vec<usize> = vec![];
         // let mut beam_counter = (0..=max_beam_position).map(|_| 0_i64).collect::<Vec<_>>();
         let mut beam_counter = prev_beam_counter.clone();

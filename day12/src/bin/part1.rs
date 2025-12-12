@@ -7,7 +7,8 @@
 #![warn(clippy::perf)]
 #![warn(missing_debug_implementations)]
 
-use nom::{IResult, multi::many1, sequence::tuple};
+use nom::Parser;
+use nom::{IResult, multi::many1};
 
 use day12::region::Region;
 use day12::shape::Shape;
@@ -18,78 +19,86 @@ fn main() {
 }
 
 fn parse_input(input: &str) -> IResult<&str, (Vec<Shape>, Vec<Region>)> {
-    tuple((many1(Shape::parse), many1(Region::parse)))(input)
+    (Shape::parse_many1, many1(Region::parse)).parse(input)
 }
 
-fn part1(input: &str) -> usize {
-    let (_, (_shapes, _region)) = parse_input(input).expect("did not parse input");
-    0_usize
+fn part1(input: &str) -> (u32, u32) {
+    let (_remains, (shapes, regions)) = parse_input(input).expect("did not parse input");
+
+    // let mut possible_count = 0;
+    let mut clb = 0u32;
+    let mut cub = 0u32;
+
+    for region in regions {
+        // println!("region {region}");
+        let availble_space = region.width as u32 * region.length as u32;
+        let mut hull_count = 0;
+        // println!("available space {availble_space}");
+        let mut brick_count = 0;
+        for (id, quantity) in region.list.iter().enumerate() {
+            brick_count += shapes[id].brick_count() * *quantity as u32;
+            hull_count += *quantity as u32 * 9;
+        }
+
+        // println!("brick count {brick_count}");
+        // println!("hull count {hull_count}");
+        // println!();
+
+        if availble_space >= brick_count {
+            // println!("max: its possible");
+            clb += 1;
+        }
+
+        if availble_space >= hull_count {
+            // println!("max: its possible");
+            cub += 1;
+        }
+    }
+    (clb, cub)
 }
 
-// #[cfg(test)]
-// mod test {
+#[cfg(test)]
+mod test {
 
-//     use super::*;
+    use super::*;
+    #[ignore]
+    #[test]
+    fn test_part1() {
+        let input = "0:
+###
+##.
+##.
 
-//     #[test]
-//     fn parse_shape() {
-//         use day12::block::Block::*;
-//         let input = "0:
-// ###
-// ##.
-// ##.";
+1:
+###
+##.
+.##
 
-//         assert_eq!(
-//             Shape::parse(input),
-//             Ok((
-//                 "",
-//                 Shape {
-//                     id: 1u8,
-//                     row: [
-//                         [Brick, Brick, Brick],
-//                         [Brick, Brick, Blank],
-//                         [Brick, Brick, Blank],
-//                     ],
-//                 }
-//             ))
-//         );
-//     }
-//     #[test]
-//     fn test_part1() {
-//         let input = "0:
-// ###
-// ##.
-// ##.
+2:
+.##
+###
+##.
 
-// 1:
-// ###
-// ##.
-// .##
+3:
+##.
+###
+##.
 
-// 2:
-// .##
-// ###
-// ##.
+4:
+###
+#..
+###
 
-// 3:
-// ##.
-// ###
-// ##.
+5:
+###
+.#.
+###
 
-// 4:
-// ###
-// #..
-// ###
+4x4: 0 0 0 0 2 0
+12x5: 1 0 1 0 2 2
+12x5: 1 0 1 0 3 2
+    ";
 
-// 5:
-// ###
-// .#.
-// ###
-
-// 4x4: 0 0 0 0 2 0
-// 12x5: 1 0 1 0 2 2
-// 12x5: 1 0 1 0 3 2";
-
-//         assert_eq!(part1(input), 5usize);
-//     }
-// }
+        assert_eq!(part1(input), (3, 1));
+    }
+}

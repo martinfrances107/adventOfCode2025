@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use nom::{
-    IResult,
+    IResult, Parser,
     branch::alt,
     bytes::complete::tag,
     combinator::{map, map_res},
@@ -50,7 +50,8 @@ pub fn parse_lamp(input: &str) -> IResult<&str, Lamp> {
             "." => Ok(Lamp(LampState::Off)),
             _ => Err(Error::new("Bad Lamp ", ErrorKind::Not)),
         }
-    })(input)
+    })
+    .parse(input)
 }
 
 impl Display for LampState {
@@ -79,11 +80,11 @@ impl Display for Lamps {
 }
 
 pub fn parse_lamps(input: &str) -> IResult<&str, Lamps> {
-    map(many1(parse_lamp), Lamps)(input)
+    map(many1(parse_lamp), Lamps).parse(input)
 }
 
 pub fn parse_indictor_pannel(input: &str) -> IResult<&str, Lamps> {
-    delimited(tag("["), parse_lamps, tag("]"))(input)
+    delimited(tag("["), parse_lamps, tag("]")).parse(input)
 }
 
 #[cfg(test)]

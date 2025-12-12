@@ -1,5 +1,6 @@
 use std::ops::RangeInclusive;
 
+use nom::Parser;
 use nom::combinator::map;
 use nom::{IResult, bytes::complete::tag, character::complete::u64, sequence::separated_pair};
 
@@ -11,7 +12,8 @@ fn main() {
 fn parse_range(input: &str) -> IResult<&str, RangeInclusive<u64>> {
     map(separated_pair(u64, tag("-"), u64), |(lower, upper)| {
         lower..=upper
-    })(input)
+    })
+    .parse(input)
 }
 
 // Returns all invalid ids in a given range.

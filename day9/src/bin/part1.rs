@@ -1,4 +1,4 @@
-//! Beam Splitter
+//! Red Square
 #![deny(clippy::all)]
 #![warn(clippy::cargo)]
 #![warn(clippy::complexity)]
@@ -59,8 +59,7 @@ mod test {
     use super::*;
 
     #[test]
-    // Block of numbers
-    fn connect() {
+    fn area() {
         let input = "7,1
 11,1
 11,7

@@ -2,12 +2,12 @@ use std::fmt::Display;
 
 use crate::lamps::{Lamp, Lamps, parse_indictor_pannel};
 use nom::{
-    IResult,
+    IResult, Parser,
     bytes::complete::tag,
     character::complete::digit1,
     combinator::{map, map_res, recognize},
     multi::{separated_list0, separated_list1},
-    sequence::{delimited, tuple},
+    sequence::delimited,
 };
 
 #[derive(Debug)]
@@ -56,29 +56,29 @@ impl Display for StateMachine {
 }
 
 fn parse_usize(input: &str) -> IResult<&str, usize> {
-    map_res(recognize(digit1), str::parse)(input)
+    map_res(recognize(digit1), str::parse).parse(input)
 }
 
 fn parse_usize_list(input: &str) -> IResult<&str, Vec<usize>> {
-    separated_list0(tag(","), parse_usize)(input)
+    separated_list0(tag(","), parse_usize).parse(input)
 }
 
 fn parse_wiriing_pairs(input: &str) -> IResult<&str, Vec<usize>> {
-    delimited(tag("("), parse_usize_list, tag(")"))(input)
+    delimited(tag("("), parse_usize_list, tag(")")).parse(input)
 }
 
 pub fn parse_wiriing_diagram(input: &str) -> IResult<&str, Vec<Vec<usize>>> {
-    separated_list1(tag(" "), parse_wiriing_pairs)(input)
+    separated_list1(tag(" "), parse_wiriing_pairs).parse(input)
 }
 
 pub fn parse_line(input: &str) -> IResult<&str, StateMachine> {
     map(
-        tuple((
+        (
             parse_indictor_pannel,
             tag(" "),
             parse_wiriing_diagram,
             tag(" "),
-        )),
+        ),
         |(target_lamps, _blank, buttons, _blank2)| {
             let n_lamps = target_lamps.0.len();
             let mut state = Lamps(vec![]);
@@ -91,7 +91,8 @@ pub fn parse_line(input: &str) -> IResult<&str, StateMachine> {
                 buttons,
             }
         },
-    )(input)
+    )
+    .parse(input)
 }
 
 #[cfg(test)]

@@ -63,4 +63,10 @@
   Part 2: Has a trick in the tail .. so I learn't the *pathfinding* crate. Learning how to store state in the node 
   was iluminating.
 
-## Day12 Present Fitting
+## Day12 Present Fitting ⭐
+  The trick seems lame. 
+  
+  A easy reject shortcut is to count the number of cubes in all pressents 
+  count the availble space and reject if they cannot possible fit.
+  
+  I just used this short cut and got the correct answer.

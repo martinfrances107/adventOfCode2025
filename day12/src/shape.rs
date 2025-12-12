@@ -1,25 +1,25 @@
 use std::fmt::Display;
 
 use nom::{
-    IResult,
-    character::complete::char,
-    character::complete::line_ending,
+    IResult, Parser,
+    character::complete::{char, line_ending},
     combinator::map,
-    sequence::{terminated, tuple},
+    multi::many1,
+    sequence::terminated,
 };
 
-use crate::block::Block;
+use crate::block::{Block, Blocks};
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Shape {
     pub id: usize,
-    pub rows: [[Block; 3]; 3],
+    pub blocks: Blocks,
 }
 
 impl Display for Shape {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let brick_char = self.id.to_string().chars().next().unwrap();
-        for row in &self.rows {
+        for row in &self.blocks.0 {
             for block in row {
                 match block {
                     Block::Blank => write!(f, ".")?,
@@ -33,31 +33,30 @@ impl Display for Shape {
 }
 impl Shape {
     fn parse_id(input: &str) -> IResult<&str, usize> {
-        terminated(super::parse_usize, tuple((char(':'), line_ending)))(input)
-    }
-    fn parse_row(input: &str) -> IResult<&str, [Block; 3]> {
-        map(
-            terminated(
-                tuple((Block::parse, Block::parse, Block::parse)),
-                line_ending,
-            ),
-            |(a, b, c): (Block, Block, Block)| {
-                // a
-                [a, b, c]
-            },
-        )(input)
-    }
-    fn parse_blocks(input: &str) -> IResult<&str, [[Block; 3]; 3]> {
-        map(
-            tuple((Shape::parse_row, Shape::parse_row, Shape::parse_row)),
-            |(a, b, c)| [a, b, c],
-        )(input)
+        terminated(super::parse_usize, (char(':'), line_ending)).parse(input)
     }
 
-    pub fn parse(input: &str) -> IResult<&str, Self> {
-        map(tuple((Self::parse_id, Self::parse_blocks)), |(id, row)| {
-            Self { id, rows: row }
-        })(input)
+    fn parse(input: &str) -> IResult<&str, Self> {
+        map(
+            terminated((Self::parse_id, Blocks::parse), line_ending),
+            |(id, row)| Self { id, blocks: row },
+        )
+        .parse(input)
+    }
+    pub fn parse_many1(input: &str) -> IResult<&str, Vec<Self>> {
+        many1(Self::parse).parse(input)
+    }
+
+    pub fn brick_count(&self) -> u32 {
+        let mut count = 0;
+        for row in &self.blocks.0 {
+            for b in row {
+                if *b == Block::Brick {
+                    count += 1;
+                }
+            }
+        }
+        count
     }
 }
 
@@ -72,27 +71,6 @@ mod test {
 ";
         assert_eq!(Shape::parse_id(input), Ok(("", 1usize)));
     }
-    #[test]
-    fn parse_row() {
-        let input = "###
-";
-        assert_eq!(Shape::parse_row(input), Ok(("", [Brick, Brick, Brick])));
-    }
-
-    #[test]
-    fn parse_blocks() {
-        let input = "###
-##.
-##.
-";
-
-        let expected = [
-            [Brick, Brick, Brick],
-            [Brick, Brick, Blank],
-            [Brick, Brick, Blank],
-        ];
-        assert_eq!(Shape::parse_blocks(input), Ok(("", expected)));
-    }
 
     #[test]
     fn parse_shape() {
@@ -100,6 +78,7 @@ mod test {
 ###
 ##.
 ##.
+
 ";
 
         assert_eq!(
@@ -108,22 +87,62 @@ mod test {
                 "",
                 Shape {
                     id: 0usize,
-                    rows: [
+                    blocks: Blocks([
                         [Brick, Brick, Brick],
                         [Brick, Brick, Blank],
                         [Brick, Brick, Blank],
-                    ],
+                    ]),
                 }
             ))
         );
     }
 
     #[test]
+    fn parse_two_shapes() {
+        let input = "0:
+###
+##.
+##.
+
+1:
+###
+##.
+.##
+
+";
+
+        assert_eq!(
+            Shape::parse_many1(input),
+            Ok((
+                "",
+                vec![
+                    Shape {
+                        id: 0usize,
+                        blocks: Blocks([
+                            [Brick, Brick, Brick],
+                            [Brick, Brick, Blank],
+                            [Brick, Brick, Blank],
+                        ]),
+                    },
+                    Shape {
+                        id: 1usize,
+                        blocks: Blocks([
+                            [Brick, Brick, Brick],
+                            [Brick, Brick, Blank],
+                            [Blank, Brick, Brick],
+                        ]),
+                    }
+                ]
+            ))
+        );
+    }
+    #[test]
     fn display_shape() {
         let input = "1:
 ###
 ##.
 ##.
+
 ";
         let (_, s) = Shape::parse(input).unwrap();
 

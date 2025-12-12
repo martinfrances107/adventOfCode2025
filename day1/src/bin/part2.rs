@@ -1,9 +1,10 @@
 use core::fmt;
 
-use nom::Err;
+use nom::IResult;
+use nom::Parser;
 use nom::character::complete::{digit1, one_of};
 use nom::combinator::{map, map_res};
-use nom::{IResult, sequence::tuple};
+use nom::error::{Error, ErrorKind};
 
 fn main() {
     let input = include_str!("./input1.txt");
@@ -39,22 +40,24 @@ fn parse_dir_header(input: &str) -> IResult<&str, DirHeader> {
     map_res(one_of("LR"), |c| match c {
         'L' => Ok(DirHeader::L),
         'R' => Ok(DirHeader::R),
-        _ => Err(Err::Error("Failed to find Diretion")),
-    })(input)
+        _ => Err(Error::new("Failed to find Diretion", ErrorKind::Alt)),
+    })
+    .parse(input)
 }
 
 fn parse_value(input: &str) -> IResult<&str, i64> {
-    map_res(digit1, str::parse)(input)
+    map_res(digit1, str::parse).parse(input)
 }
 
 fn parse_dir(input: &str) -> IResult<&str, Dir> {
     map(
-        tuple((parse_dir_header, parse_value)),
+        (parse_dir_header, parse_value),
         |(header, value)| match header {
             DirHeader::L => Dir::L(value),
             DirHeader::R => Dir::R(value),
         },
-    )(input)
+    )
+    .parse(input)
 }
 
 fn turn(dial: i64, dir: &Dir) -> (i64, i64) {

@@ -1,8 +1,13 @@
 [package]
 name = "day8"
 version = "0.1.0"
-edition = "2024"
-
+edition = {workspace = true}
+readme = {workspace = true}
+repository = {workspace = true}
+keywords = {workspace=true}
+description= {workspace=true}
+categories = {workspace=true}
+license = {workspace = true}
 [[bin]]
 name = "part1"
 test = true

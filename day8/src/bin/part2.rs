@@ -13,7 +13,7 @@ use itertools::Itertools;
 
 fn main() {
     let input = include_str!("./input1.txt");
-    println!("{:?}", part2(input, 1000000));
+    println!("{:?}", part2(input, 1_000_000));
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
