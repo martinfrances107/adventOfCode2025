@@ -3,3 +3,4 @@
 **/flamegraph.svg
 tarpaulin-report.html
 Cargo.lock
+log.txt
